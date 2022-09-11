@@ -8,8 +8,11 @@ import streamlit as st
 
 #Title
 st.title('ETL Demo')
-st.write('CSV to Json/CSV')
+st.write('CSV to Json')
 
+
+# Upload the file
+uploaded_file = st.file_uploader("Choose your file CSV:", type=['csv'], accept_multiple_files = False)
 # Function to Split a Feature
 
 def split(Feature_Name, New_Name1, New_Name2):
@@ -20,21 +23,40 @@ def split(Feature_Name, New_Name1, New_Name2):
     return df
 
 # Function to apply padding
-def pad(PFeature_Name):
-    lis = list(PFeature_Name)
-    lis.insert(2, " ")
+def Npad(NOS):
+    lis = []
     s = ""
-    for i in lis:
-        s += i
-    return s
+    n = int(NOS)
+    for i in range(0, n):
+        ele = " "
+        lis.append(ele)
+    srt = s.join(lis)
+    return srt
 
-# Function to call the padding function
-def apply_pad(PFeature_Name, New_Name):
-    df = pd.read_csv('Transformed_20220419_new_orders_to_rpac.csv')
-    df[New_Name] = df[PFeature_Name].apply(pad)
-    csv = df.to_csv('Transformed_20220419_new_orders_to_rpac.csv', index = None)
-    json = df.to_json("20220419_new_orders_to_rpac.json", orient = 'records')
-    return df
+def add_pad(PFeature_name, NOS):
+    lst = list(PFeature_name)
+    s = Npad(NOS)
+    lis = []
+    for i in lst:
+        ss = s + "" + i
+        lis.append(ss)
+    return lis
+
+def apply_pad(PFeature_name, New_Name, NOS):
+    try:
+        df = pd.read_csv('Transformed_20220419_new_orders_to_rpac.csv')
+        L = add_pad(df[PFeature_name], NOS)
+        df[New_Name] = L
+        csv = df.to_csv('Transformed_20220419_new_orders_to_rpac.csv', index = None)
+        json = df.to_json("20220419_new_orders_to_rpac.json", orient = 'records')
+        return df
+    except:
+        df = pd.read_csv("20220419_new_orders_to_rpac.csv")
+        L = add_pad(df[PFeature_name], NOS)
+        df[New_Name] = L
+        csv = df.to_csv('Transformed_20220419_new_orders_to_rpac.csv', index = None)
+        json = df.to_json("20220419_new_orders_to_rpac.json", orient = 'records')
+        return df
 
 #Buttons
 st.sidebar.title('User Controls')
@@ -47,9 +69,8 @@ New_Name2 = st.sidebar.text_input(label = 'Enter the Name for New Feature 2')
 st.sidebar.write('Input for Padding Function')
 PFeature_Name = st.sidebar.text_input(label = 'Enter the Feature Name Which You Want to Add Padding')
 New_Name = st.sidebar.text_input(label = 'Enter the Name for New Feature')
+NOS  = st.sidebar.text_input(label = 'Enter the No of Padding You Want')
 
-# Upload the file
-uploaded_file = st.file_uploader("Choose your file CSV:", type=['csv'], accept_multiple_files = False)
 
 if uploaded_file is not None:
     #Converting the file into DataFrame
@@ -85,28 +106,56 @@ if uploaded_file is not None:
 
     #Tranforming
     if st.sidebar.button("Transform"):
-        df = transform(extract())
-        st.markdown('Transformed CSV')
-        st.write(df.head())
-        st.write()
+        try:
+            df = transform(extract())
+            st.markdown('Transformed CSV')
+            st.write(df.head())
+            st.write()
 
+        except ValueError:
+            st.error("Please Input Number Value")
+
+        except KeyError:
+            st.error("Feature Does not Exist")
+
+        except AttributeError:
+            pass
+    
     if st.sidebar.button("Split A Feature"):
-        df = split(Feature_Name, New_Name1, New_Name2)
-        st.markdown('Splited CSV')
-        st.write(df.head())
+        try:
+            df = split(Feature_Name, New_Name1, New_Name2)
+            st.markdown('Splited CSV')
+            st.write(df.head())
+
+        except ValueError:
+            st.error("Please Input Number Value")
+
+        except KeyError:
+            st.error("Feature Does not Exist")
+
+        except AttributeError:
+            pass
 
     if st.sidebar.button("ADD a Padding"):
-        df = apply_pad(PFeature_Name,New_Name)
-        st.markdown('Padded CSV')
-        st.write(df.head())
+        try:
+            df = apply_pad(PFeature_Name, New_Name, NOS)
+            st.markdown('Padded CSV')
+            st.write(df.head())
 
+        except ValueError:
+            st.error("Please Input Number Value")
+
+        except KeyError:
+            st.error("Feature Does not Exist")
+
+        except AttributeError:
+            pass
     try:
         with open("20220419_new_orders_to_rpac.json", "r") as f:
             data_columns = json.load(f)
             st.write(data_columns[:1])
     except:
         pass
-        
 else:
     st.write('Please Upload a File')
 
