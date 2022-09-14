@@ -70,19 +70,53 @@ def apply_pad(PFeature_name, New_Name, NOS):
 
         return df
 
+#Custom Split
+def custom_splits(SFeature_name, Start, End):
+    lis = list(SFeature_name)
+    x = ''
+    S = int(Start)
+    E = int(End)
+    lst = []
+    for s in lis:
+        x = s[S:E]
+        lst.append(x)
+    return lst
+
+def apply_custom_splits(SFeature_name, SNew_Name, Start, End):
+    try:
+        df = pd.read_csv('Transformed_20220419_new_orders_to_rpac.csv')
+        if SFeature_name == SNew_Name:
+            st.error("Enter the name different from feature name")
+        L = custom_splits(df[SFeature_name], Start, End)
+        df[SNew_Name] = L
+        csv = df.to_csv('Transformed_20220419_new_orders_to_rpac.csv', index = None)
+        #json = df.to_json("20220419_new_orders_to_rpac.json", orient = 'records')
+
+        return df
+    except:
+        df = pd.read_csv("20220419_new_orders_to_rpac.csv")
+        if SFeature_name == SNew_Name:
+            st.error("Enter the name different from feature name")
+        L = custom_splits(df[SFeature_name], Start, End)
+        df[SNew_Name] = L
+        csv = df.to_csv('Transformed_20220419_new_orders_to_rpac.csv', index = None)
+        #json = df.to_json("20220419_new_orders_to_rpac.json", orient = 'records')
+
+        return df
+
 #Buttons
 st.sidebar.title('User Controls')
-
-st.sidebar.write('Input for Split Function')
-Feature_Name = st.sidebar.text_input(label = 'Enter the Feature Name Which You Want to Split')
-New_Name1 = st.sidebar.text_input(label = 'Enter the Name for New Feature 1')
-New_Name2 = st.sidebar.text_input(label = 'Enter the Name for New Feature 2')
 
 st.sidebar.write('Input for Padding Function')
 PFeature_Name = st.sidebar.text_input(label = 'Enter the Feature Name Which You Want to Add Padding')
 New_Name = st.sidebar.text_input(label = 'Enter the Name for New Feature')
 NOS  = st.sidebar.text_input(label = 'Enter the No of Padding You Want')
 
+st.sidebar.write('Input for Custom Split Function')
+SFeature_name  = st.sidebar.text_input(label = 'Enter the Feature Name Which You Want to Custom Split')
+SNew_Name = st.sidebar.text_input(label = 'Enter the Name for New Splitted Feature')
+Start = st.sidebar.text_input(label = 'Enter the Starting Number From Where You Want Split')
+End = st.sidebar.text_input(label = 'Enter the End Number From Where You Want to Stop Split')
 
 if uploaded_file is not None:
     #Converting the file into DataFrame
@@ -137,24 +171,6 @@ if uploaded_file is not None:
         except AttributeError:
             pass
     
-    if st.sidebar.button("Split A Feature"):
-        try:
-            df = split(Feature_Name, New_Name1, New_Name2)
-            st.markdown('Splited CSV')
-            st.write(df.head())
-            #Download
-            csv_dwnld = convert_df(df)
-            st.download_button("Press to Download", csv_dwnld,"Transformed.csv","text/csv",key='download-csv')
-
-        except ValueError:
-            st.error("Please Input Number Value")
-
-        except KeyError:
-            st.error("Feature Does not Exist")
-
-        except AttributeError:
-            pass
-
     if st.sidebar.button("ADD a Padding"):
         try:
             df = apply_pad(PFeature_Name, New_Name, NOS)
@@ -172,6 +188,25 @@ if uploaded_file is not None:
 
         except AttributeError:
             pass
+
+    if st.sidebar.button("ADD Custom Split"):
+        try:
+            df = apply_custom_splits(SFeature_name, SNew_Name, Start, End)
+            st.markdown('Custom Splited CSV')
+            st.write(df.head())
+            #Download
+            csv_dwnld = convert_df(df)
+            st.download_button("Press to Download", csv_dwnld,"Transformed.csv","text/csv",key='download-csv')
+
+        except ValueError:
+            st.error("Please Input Number Value")
+
+        except KeyError:
+            st.error("Feature Does not Exist")
+
+        except AttributeError:
+            pass
+
     try:
         with open("20220419_new_orders_to_rpac.json", "r") as f:
             data_columns = json.load(f)
