@@ -234,7 +234,7 @@ if uploaded_file is not None:
             st.write(df.head())
             #Download
             csv_dwnld = convert_df(df)
-            st.download_button("Press to Download", csv_dwnld,"Transformed.csv","text/csv",key='download-csv')
+            st.download_button("Press to Download", csv_dwnld,"Transformed_padding.csv","text/csv",key='download-csv')
             st.write("""##### Kindly Download the CSV file to check the actual result of padding""")
 
         except ValueError:
@@ -260,7 +260,7 @@ if uploaded_file is not None:
             st.write(df.head())
             #Download
             csv_dwnld = convert_df(df)
-            st.download_button("Press to Download", csv_dwnld,"Transformed.csv","text/csv",key='download-csv')
+            st.download_button("Press to Download", csv_dwnld,"Transformed_substring.csv","text/csv",key='download-csv')
 
 
         except ValueError:
