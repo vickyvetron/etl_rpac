@@ -156,7 +156,7 @@ elif len(pFeaturelist) > 3:
 
 # What i try.
     
-st.sidebar.write('Input for Custom Split Function')
+st.sidebar.write('Input for Sub String Function')
 SFeature  = st.sidebar.text_input(label = 'Enter the Feature Name Which You Want to Sub String. Eg:Hrid,Hrid_new,0,4')
 SFeaturelist = SFeature.split(",")
 
