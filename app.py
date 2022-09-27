@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import json
 from io import BytesIO
+import os
 # Deployment Libraries
 import streamlit as st
 
@@ -11,7 +12,6 @@ st.title('ETL Demo')
 st.write("""
          
 ### Tutorial :-
-
 * Add Left Padding = **Feature Name, Name for New Feature, No of Padding You Want.**   
  
 * Sub String = **Feature Name, Name for New Splitted Feature, Starting Number From Where You Want Split, Number From Where You Want to Stop Split.**    
@@ -35,9 +35,9 @@ def convert_df(df):
 def split(Feature_Name, New_Name1, New_Name2):
     if Feature_Name == New_Name1:
         st.error("Enter the name different from feature name")
-    df = pd.read_csv('Transformed_20220419_new_orders_to_rpac.csv')
+    df = pd.read_csv('Transformed.csv')
     df[[New_Name1, New_Name2]] = df[Feature_Name].str.split(",", 1, expand = True)
-    csv = df.to_csv('Transformed_20220419_new_orders_to_rpac.csv', index = None)
+    csv = df.to_csv('Transformed.csv', index = None)
     #json = df.to_json("20220419_new_orders_to_rpac.json", orient = 'records')
 
     return df
@@ -64,24 +64,24 @@ def add_pad(PFeature_name, NOS):
 
 def apply_pad(PFeature_name, New_Name, NOS):
     try:
-        df = pd.read_csv('Transformed_20220419_new_orders_to_rpac.csv')
+        df = pd.read_csv('Transformed.csv')
         if PFeature_name == New_Name:
             #pass
             st.error("Enter the name different from feature name")
         L = add_pad(df[PFeature_name], NOS)
         df[New_Name] = L
-        csv = df.to_csv('Transformed_20220419_new_orders_to_rpac.csv', index = None)
+        csv = df.to_csv('Transformed.csv', index = None)
         #json = df.to_json("20220419_new_orders_to_rpac.json", orient = 'records')
 
         return df
     except:
-        df = pd.read_csv("20220419_new_orders_to_rpac.csv")
+        df = extract()
         if PFeature_name == New_Name:
             #pass
             st.error("Enter the name different from feature name")
         L = add_pad(df[PFeature_name], NOS)
         df[New_Name] = L
-        csv = df.to_csv('Transformed_20220419_new_orders_to_rpac.csv', index = None)
+        csv = df.to_csv('Transformed.csv', index = None)
         #json = df.to_json("20220419_new_orders_to_rpac.json", orient = 'records')
 
         return df
@@ -100,24 +100,24 @@ def custom_splits(SFeature_name, Start, End):
 
 def apply_custom_splits(SFeature_name, SNew_Name, Start, End):
     try:
-        df = pd.read_csv('Transformed_20220419_new_orders_to_rpac.csv')
+        df = pd.read_csv('Transformed.csv')
         if SFeature_name == SNew_Name:
             pass
             # st.error("Enter the name different from feature name")...
         L = custom_splits(df[SFeature_name], Start, End)
         df[SNew_Name] = L
-        csv = df.to_csv('Transformed_20220419_new_orders_to_rpac.csv', index = None)
+        csv = df.to_csv('Transformed.csv', index = None)
         #json = df.to_json("20220419_new_orders_to_rpac.json", orient = 'records')
 
         return df
     except:
-        df = pd.read_csv("20220419_new_orders_to_rpac.csv")
+        df = extract()
         if SFeature_name == SNew_Name:
             pass
             # st.error("Enter the name different from feature name")...
         L = custom_splits(df[SFeature_name], Start, End)
         df[SNew_Name] = L
-        csv = df.to_csv('Transformed_20220419_new_orders_to_rpac.csv', index = None)
+        csv = df.to_csv('Transformed.csv', index = None)
         #json = df.to_json("20220419_new_orders_to_rpac.json", orient = 'records')
 
         return df
@@ -175,6 +175,10 @@ elif len(SFeaturelist) > 4:
        
 
 if uploaded_file is not None:
+    # Saving the File
+    with open(os.path.join(uploaded_file.name),"wb") as f:
+        f.write(uploaded_file.getbuffer())
+
     #Converting the file into DataFrame
     CSV = pd.read_csv(uploaded_file)
 
@@ -195,16 +199,15 @@ if uploaded_file is not None:
 
     #Transforming CSV
     def transform(df):
-        #Groupby on Similiar Group
-        df['Quantity'] = df['Quantity'].astype('str') 
-        df = df.groupby('hr_order_number').agg({'Hrid':'first','Location Name':'first','Attention':'first','Address 1':'first',
-                                            'Address 2':'first','City':'first','State':'first','Zipcode':'first','Country':'first',
-                                            'Phone':'first','Email':'first','Quantity':', '.join,'Item Code1':', '.join,
-                                            'Item Code2':'first','Item Code3':'first','Item Code4':'first'}).reset_index()
-        csv = df.to_csv('Transformed_20220419_new_orders_to_rpac.csv', index = None)
-        #json = df.to_json("20220419_new_orders_to_rpac.json", orient = 'records')
-
-        return df
+        try:
+            df['Quantity'] = df['Quantity'].astype('str')
+            df = df.groupby('hr_order_number').agg({**{x: 'first' for x in df.columns},**{'Quantity':','.join},**{'Item Code1':','.join}}).reset_index(drop = True)
+            csv = df.to_csv('Transformed.csv', index = None)
+            #json = df.to_json("20220419_new_orders_to_rpac.json", orient = 'records')
+            return df
+        except KeyError:
+            csv = df.to_csv('Transformed.csv', index = None)
+            return df
 
     #Tranforming
     
@@ -212,7 +215,7 @@ if uploaded_file is not None:
         try:
             df = transform(extract())
             st.markdown('Transformed CSV')
-            st.write(df.head())
+            st.write(df)
             #Download
             csv_dwnld = convert_df(df)
             st.download_button("Press to Download", csv_dwnld,"Transformed.csv","text/csv",key='download-csv')
@@ -231,7 +234,7 @@ if uploaded_file is not None:
         try:
             df = apply_pad(PFeature_Name, New_Name, NOS)
             st.markdown('Padded CSV')
-            st.write(df.head())
+            st.write(df)
             #Download
             csv_dwnld = convert_df(df)
             st.download_button("Press to Download", csv_dwnld,"Transformed_padding.csv","text/csv",key='download-csv')
@@ -257,7 +260,7 @@ if uploaded_file is not None:
         try:
             df = apply_custom_splits(SFeature_name, SNew_Name, Start, End)
             st.markdown('Sub String CSV')
-            st.write(df.head())
+            st.write(df)
             #Download
             csv_dwnld = convert_df(df)
             st.download_button("Press to Download", csv_dwnld,"Transformed_substring.csv","text/csv",key='download-csv')
@@ -288,4 +291,3 @@ if uploaded_file is not None:
         pass
 else:
     st.write('Please Upload a File')
-
