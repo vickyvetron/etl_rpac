@@ -48,7 +48,8 @@ def Npad(NOS):
     s = ""
     n = int(NOS)
     for i in range(0, n):
-        ele = " "
+        ele = "0"
+        #ele = 0
         lis.append(ele)
     srt = s.join(lis)
     return srt
@@ -211,24 +212,7 @@ if uploaded_file is not None:
 
     #Tranforming
     
-    if st.sidebar.button("Transform"):
-        try:
-            df = transform(extract())
-            st.markdown('Transformed CSV')
-            st.write(df)
-            #Download
-            csv_dwnld = convert_df(df)
-            st.download_button("Press to Download", csv_dwnld,"Transformed.csv","text/csv",key='download-csv')
-            st.write("""#### Kindly Download the CSV file to check the actual result of padding""")
 
-        except ValueError:
-            st.error("Please Input Number Value")
-
-        except KeyError:
-            st.error("Feature Does not Exist")
-
-        except AttributeError:
-            pass
     
     if st.sidebar.button("ADD Left Padding"):
         try:
