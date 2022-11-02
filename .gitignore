@@ -1,0 +1,24 @@
+**/migrations
+*.DS_Store
+**/__pycache__
+**/.DS_Store
+
+
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+media
+
+
+
+# Environments 
+.env 
+.venv 
+env/ 
+venv/ 
+ENV/ 
+env.bak/ 
+venv.bak/ 
