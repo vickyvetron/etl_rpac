@@ -1,7 +1,7 @@
 from django.urls import path
 
 
-from .views import LogoutView, LoginView, ForgatePasswordView, SavePasswordView, CreateSubAdminView, CreateAdminView, CreateUserView
+from .views import LogoutView, LoginView, ForgatePasswordView, SavePasswordView, CreateSubAdminView, CreateAdminView, CreateUserView, EditUserView
 
 urlpatterns = [
     path('login', LoginView.as_view(), name='login'),
@@ -10,5 +10,6 @@ urlpatterns = [
     path('save-password', SavePasswordView.as_view()),
     path('subadmin-user', CreateSubAdminView.as_view()),
     path('admin-user', CreateAdminView.as_view()),
-    path('user', CreateUserView.as_view())
+    path('user', CreateUserView.as_view()),
+    # path('edit-user/<int:id>', EditUserView.as_view())
 ]

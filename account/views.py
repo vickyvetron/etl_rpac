@@ -358,3 +358,27 @@ class CreateUserView(APIView):
                 response_status = status.HTTP_400_BAD_REQUEST
 
         return Response(context, status=response_status)
+
+
+class EditUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, id):
+        pass
+
+    def delete(self, request, id):
+        context = {}
+        response_status = status.HTTP_200_OK
+        try:
+            user = User.objects.get(id=id)
+            user.delete()
+            context['message'] = "User succesfully delete"
+            context['data'] = []
+            context['status'] = True
+        except User.DoesNotExist:
+            context['message'] = "User not found"
+            context['data'] = []
+            context['status'] = False
+            response_status = status.HTTP_404_NOT_FOUND
+            
+        return Response(context, status=response_status)
