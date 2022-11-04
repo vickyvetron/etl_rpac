@@ -1,6 +1,5 @@
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
-from .models import Role, CustomUser, Otp
+from .models import Role, Otp
 
 from django.contrib.auth.models import User
 

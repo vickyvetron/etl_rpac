@@ -52,7 +52,8 @@ INSTALLED_APPS = [
 
     "corsheaders",
     
-    "account"
+    "account",
+    "jobs"
 ]
 
 MIDDLEWARE = [
