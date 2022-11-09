@@ -36,3 +36,9 @@ class JobDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobDetail
         fields = "__all__"
+
+    def to_representation(self, instance):
+        data = super(JobDetailsSerializer, self).to_representation(instance)
+        data.update({"corporate": CorporateSerializer(instance.corporate).data})
+        data.update({"comapany": CompanySerializer(instance.comapany).data})
+        return data

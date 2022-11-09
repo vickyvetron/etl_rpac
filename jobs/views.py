@@ -419,3 +419,81 @@ class JobDetailsView(APIView):
             context['status'] = False
             context['data'] = []
         return Response(context, status=response_status)
+
+
+class SingleJobDeatilsView(APIView):
+
+    def get_job_obj(self, id):
+        try:
+            setting = JobDetail.objects.get(id=id)
+            return setting
+        except JobDetail.DoesNotExist:
+            return False
+
+    def get(self, request, id):
+        context = {}
+        response_status = status.HTTP_200_OK
+        try:
+            job = self.get_job_obj(id)
+            if job:
+                serializer = JobDetailsSerializer(job)
+                context['message'] = 'Job Data'
+                context['status'] = True
+                context['data'] = serializer.data
+            else:
+                context['message'] = 'No data found with this id'
+                context['status'] = False
+                context['data'] = []
+                response_status = status.HTTP_400_BAD_REQUEST
+        except Exception as e:
+            context['message'] = str(e)
+            context['status'] = False
+            context['data'] = []
+            response_status = status.HTTP_400_BAD_REQUEST
+        return Response(context, status=response_status)
+
+    def put(self, request, id):
+        context = {}
+        response_status = status.HTTP_200_OK
+        job = self.get_job_obj(id)
+        if job:
+            serializer = JobDetailsSerializer(job, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                context['message'] = "Job details updated"
+                context['status'] = True
+                context['data'] = serializer.data
+            else:
+                context['message'] = serializer.errors
+                context['status'] = False
+                context['data'] = []
+                response_status = status.HTTP_400_BAD_REQUEST
+        else:
+            context['message'] = "JOb Details Not Found"
+            context['status'] = False
+            context['data'] = []
+            response_status = status.HTTP_404_NOT_FOUND
+        return Response(context, status=response_status)
+
+    def delete(self, request, id):
+        """
+        This method responsible for handle delete request
+        """
+        logger.info("POST request arrived for 'delete job details api' ")
+        context = {}
+        response_status = status.HTTP_200_OK
+        try:
+            user = JobDetail.objects.get(id=id)
+            user.delete()
+            logger.info("POST request for 'delete job api'- succesfully delete job")
+            context['message'] = "Setting succesfully delete"
+            context['data'] = []
+            context['status'] = True
+        except JobDetail.DoesNotExist:
+            logger.error("POST request for 'delete job' - faild because of job does not exists")
+            context['message'] = "Job not found"
+            context['data'] = []
+            context['status'] = False
+            response_status = status.HTTP_404_NOT_FOUND
+
+        return Response(context, status=response_status)

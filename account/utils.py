@@ -7,7 +7,6 @@ def mail_send(subject, message, email_from, recipient_list):
         send_mail(subject, message, email_from, recipient_list )
         return True
     except Exception as e:
-        print(e,'======================')
         return False
     
 
