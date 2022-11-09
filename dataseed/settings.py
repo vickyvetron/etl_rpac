@@ -104,12 +104,29 @@ WSGI_APPLICATION = "dataseed.wsgi.application"
 # }
 
 
+
 DATABASES = {
-   "default": {
-        "ENGINE": "djongo",
-        "NAME": "dataseed",
-    }
-}
+       'default': {
+           'ENGINE': 'djongo',
+           'NAME': env('DATABASE_NAME'),
+           'CLIENT': {
+              'host': env('DATABASE_HOST'),
+              'port': 27017,
+              'username': env('DATABASE_USER'),
+              'password': env('DATABASE_PASSWORD'),
+            }
+       }
+   }
+
+
+
+
+# DATABASES = {
+#    "default": {
+#         "ENGINE": "djongo",
+#         "NAME": "dataseed",
+#     }
+# }
 
 
 AUTH_USER_MODEL = 'account.CustomUser'

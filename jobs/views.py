@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from .serializer import CompanySerializer, CorporateSerializer
-from .models import Company, Corporate
+from .serializer import CompanySerializer, CorporateSerializer, GlobalConfigurationsSerializer
+from .models import Company, Corporate, GlobalConfiguration
 from account.permission import IsAdminUser
 
 
@@ -20,6 +20,7 @@ class CompanyView(APIView):
         """
         This method responsible for handle get request
         """
+        logger.info('GET request arrived for company')
         context = {}
         response_status = status.HTTP_200_OK
         companys = Company.objects.all()
@@ -27,12 +28,14 @@ class CompanyView(APIView):
         context['message'] = 'All Comapany data'
         context['status'] = True
         context['data'] = serializer.data
+        logger.info('GET request arrived for company - succesfully get the all company data')
         return Response(context, status=response_status)
 
     def post(self, request):
         """
         This method responsible for handle post request
         """
+        logger.info("POST request arrived for company api")
         context = {}
         response_status = status.HTTP_200_OK
         serializer = CompanySerializer(data=request.data)
@@ -41,7 +44,9 @@ class CompanyView(APIView):
             context['message'] = "Company Created"
             context['status'] = True
             context['data'] = serializer.data
+            logger.info("POST request for create company- succesfully created comapny record")
         else:
+            logger.error("POST request for comapny failed beacuse of request data not valid")
             context['message'] = serializer.errors
             context['status'] = False
             context['data'] = []
@@ -55,15 +60,18 @@ class SingleCompanyView(APIView):
         This method used for get company object
         """
         try:
+            logger.info("Get company object on retrive comapny data")
             obj = Company.objects.get(id=id)
             return obj
         except Company.DoesNotExist:
+            logger.error("NO conapmy found with this id")
             return False
 
     def get(self, request, id):
         """
         This method responsible for handle get request
         """
+        logger.info("GET request arrived for retrive comapny details")
         context = {}
         response_status = status.HTTP_200_OK
         com_obj = self.get_object(id)
@@ -169,7 +177,7 @@ class SingleCorporateView(APIView):
 
     def get_object(self, id):
         """
-        This method used for get coporate objects
+        This method used for get corporate objects
         """
         try:
             obj = Corporate.objects.get(id=id)
@@ -245,3 +253,31 @@ class SingleCorporateView(APIView):
 
         return Response(context, status=response_status)
     
+
+class GlobalConfigurationsView(APIView):
+
+    def get(self, request):
+        context = {}
+        response_status = status.HTTP_200_OK
+        config_data = GlobalConfiguration.objects.all()
+        serializer = GlobalConfigurationsSerializer(config_data, many=True)
+        context['message'] = 'All Configurations data'
+        context['status'] = True
+        context['data'] = serializer.data
+        return Response(context, status=response_status)
+
+    def post(self, request):
+        context = {}
+        response_status = status.HTTP_200_OK
+        serializer = GlobalConfigurationsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            context['message'] = "Succesfully save settings data"
+            context['status'] = True
+            context['data'] = serializer.data
+        else:
+            context['message'] = serializer.errors
+            context['status'] = False
+            context['data'] = []
+        return Response(context, status=response_status)
+

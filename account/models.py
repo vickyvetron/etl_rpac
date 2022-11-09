@@ -1,10 +1,11 @@
 from email.policy import default
-from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 
 from django.contrib.auth.base_user import BaseUserManager
 
+
+from django.db import models
 
 class Role(models.Model):
     """
@@ -82,6 +83,7 @@ class Otp(models.Model):
         ('Forgate_Password', 'Forgate_Password'),
         ('Chnage_password', 'Chnage_password')
     )
+    id = models.BigIntegerField(primary_key=True)
     otp = models.CharField(max_length=55)
     type = models.CharField(choices=TYPE, max_length=55)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

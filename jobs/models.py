@@ -1,9 +1,10 @@
-from django.db import models
-
+from djongo import models
+from django import forms
 # Create your models here.
 
 
 class Company(models.Model):
+    id = models.BigIntegerField(primary_key=True)
     name = models.CharField(max_length=255)
     contact_no = models.BigIntegerField()
     email = models.EmailField()
@@ -23,6 +24,7 @@ class Company(models.Model):
 
 
 class Corporate(models.Model):
+    id = models.BigIntegerField(primary_key=True)
     brand = models.CharField(max_length=55)
     email = models.EmailField()
     no_pods = models.BigIntegerField()
@@ -33,3 +35,15 @@ class Corporate(models.Model):
     def __str__(self) -> str:
         return self.brand
 
+
+class GlobalConfiguration(models.Model):
+    id = models.AutoField(primary_key=True)
+    optional_fields = models.JSONField()
+    required_fields = models.JSONField()
+    corporate = models.OneToOneField(Corporate, on_delete=models.CASCADE)
+
+    objects = models.DjongoManager()
+
+
+    def __str__(self) -> str:
+        return self.corporate.brand
