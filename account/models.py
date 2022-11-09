@@ -83,7 +83,7 @@ class Otp(models.Model):
         ('Forgate_Password', 'Forgate_Password'),
         ('Chnage_password', 'Chnage_password')
     )
-    id = models.BigIntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     otp = models.CharField(max_length=55)
     type = models.CharField(choices=TYPE, max_length=55)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

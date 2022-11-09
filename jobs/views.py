@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from .serializer import CompanySerializer, CorporateSerializer, GlobalConfigurationsSerializer
-from .models import Company, Corporate, GlobalConfiguration
+from .serializer import CompanySerializer, CorporateSerializer, GlobalConfigurationsSerializer, JobDetailsSerializer
+from .models import Company, Corporate, GlobalConfiguration, JobDetail
 from account.permission import IsAdminUser
 
 
@@ -281,3 +281,141 @@ class GlobalConfigurationsView(APIView):
             context['data'] = []
         return Response(context, status=response_status)
 
+
+class AllGlobalConfigurationByCompany(APIView):
+
+    def get_settings_by_company_name(self, company_name):
+        try:
+            setting = GlobalConfiguration.objects.filter(corporate__company__name=company_name)
+            return setting
+        except GlobalConfiguration.DoesNotExist:
+            return False
+
+    def get(self, request, company_name):
+        context = {}
+        response_status = status.HTTP_200_OK
+        try:
+            setting = self.get_settings_by_company_name(company_name)
+            if setting:
+                serializer = GlobalConfigurationsSerializer(setting, many=True)
+                context['message'] = 'All Configurations data'
+                context['status'] = True
+                context['data'] = serializer.data
+            else:
+                context['message'] = 'No data found with this corporate name'
+                context['status'] = False
+                context['data'] = []
+                response_status = status.HTTP_400_BAD_REQUEST
+        except Exception as e:
+            context['message'] = str(e)
+            context['status'] = False
+            context['data'] = []
+            response_status = status.HTTP_400_BAD_REQUEST
+        return Response(context, status=response_status)
+
+
+class SingleGlobalConfiguration(APIView):
+
+    def get_config_obj(self, id):
+        try:
+            setting = GlobalConfiguration.objects.get(id=id)
+            return setting
+        except GlobalConfiguration.DoesNotExist:
+            return False
+
+    def get(self, request, id):
+        context = {}
+        response_status = status.HTTP_200_OK
+        try:
+            setting = self.get_config_obj(id)
+            if setting:
+                serializer = GlobalConfigurationsSerializer(setting)
+                context['message'] = 'All Configurations data'
+                context['status'] = True
+                context['data'] = serializer.data
+            else:
+                context['message'] = 'No data found with this id'
+                context['status'] = False
+                context['data'] = []
+                response_status = status.HTTP_400_BAD_REQUEST
+        except Exception as e:
+            context['message'] = str(e)
+            context['status'] = False
+            context['data'] = []
+            response_status = status.HTTP_400_BAD_REQUEST
+        return Response(context, status=response_status)
+
+
+    def put(self, request, id):
+        context = {}
+        response_status = status.HTTP_200_OK
+        setting = self.get_config_obj(id)
+        if setting:
+            serializer = GlobalConfigurationsSerializer(setting, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                context['message'] = "Setting details updated"
+                context['status'] = True
+                context['data'] = serializer.data
+            else:
+                context['message'] = serializer.errors
+                context['status'] = False
+                context['data'] = []
+                response_status = status.HTTP_400_BAD_REQUEST
+        else:
+            context['message'] = "Setting Not Found"
+            context['status'] = False
+            context['data'] = []
+            response_status = status.HTTP_404_NOT_FOUND
+        return Response(context, status=response_status)
+
+    def delete(self, request, id):
+        """
+        This method responsible for handle delete request
+        """
+        logger.info("POST request arrived for 'delete setting details api' ")
+        context = {}
+        response_status = status.HTTP_200_OK
+        try:
+            user = GlobalConfiguration.objects.get(id=id)
+            user.delete()
+            logger.info("POST request for 'delete comapny api'- succesfully delete setting")
+            context['message'] = "Setting succesfully delete"
+            context['data'] = []
+            context['status'] = True
+        except GlobalConfiguration.DoesNotExist:
+            logger.error("POST request for 'delete setting' - faild because of user does not exists")
+            context['message'] = "Setting not found"
+            context['data'] = []
+            context['status'] = False
+            response_status = status.HTTP_404_NOT_FOUND
+
+        return Response(context, status=response_status)
+
+
+class JobDetailsView(APIView):
+
+    def get(self, request):
+        context = {}
+        response_status = status.HTTP_200_OK
+        job_details = JobDetail.objects.all()
+        serializer = JobDetailsSerializer(job_details, many=True)
+        context['message'] = 'All Jobs data'
+        context['status'] = True
+        context['data'] = serializer.data
+        return Response(context, status=response_status)
+
+    def post(self, request):
+        context = {}
+        response_status = status.HTTP_200_OK
+        serializer = JobDetailsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            context['message'] = 'Job Succesfully created'
+            context['status'] = True
+            context['data'] = serializer.data
+        else:
+            context['message'] = serializer.errors
+            context['status'] = False
+            context['data'] = []
+        return Response(context, status=response_status)
