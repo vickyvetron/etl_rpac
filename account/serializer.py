@@ -37,7 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
 class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'user_id', 'password', 'name', 'status']
+        fields = ['id', 'email', 'user_id', 'password', 'name', 'status']
         
     def validate_user_id(self, value):
         if value == '':
