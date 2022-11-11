@@ -65,6 +65,10 @@ class JobDetail(models.Model):
     execution_schedule = models.DateTimeField()
     active_version_no = models.CharField(max_length=55)
     send_notification = models.BooleanField(default=False)
+    path = models.CharField(max_length=255, null=True, blank=True)
+    host = models.CharField(max_length=255, null=True, blank=True)
+    username = models.CharField(max_length=255, null=True, blank=True)
+    password = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(null=True, blank=True)
 
